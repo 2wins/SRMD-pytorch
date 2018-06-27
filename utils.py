@@ -60,8 +60,10 @@ class Kernels(object):
 def load_kernels(file_path='kernels/', scale_factor=2):
     f = h5py.File(os.path.join(file_path, 'SRMDNFx%d.mat' % scale_factor), 'r')
 
-    directKernel = f['net/meta/directKernel']
-    directKernel = np.array(directKernel).transpose(3, 2, 1, 0)
+    directKernel = None
+    if scale_factor != 4:
+        directKernel = f['net/meta/directKernel']
+        directKernel = np.array(directKernel).transpose(3, 2, 1, 0)
 
     AtrpGaussianKernels = f['net/meta/AtrpGaussianKernel']
     AtrpGaussianKernels = np.array(AtrpGaussianKernels).transpose(3, 2, 1, 0)
@@ -70,7 +72,10 @@ def load_kernels(file_path='kernels/', scale_factor=2):
     P = np.array(P)
     P = P.T
 
-    K = np.concatenate((directKernel, AtrpGaussianKernels), axis=-1)
+    if directKernel is not None:
+        K = np.concatenate((directKernel, AtrpGaussianKernels), axis=-1)
+    else:
+        K = AtrpGaussianKernels
 
     return K, P
 
