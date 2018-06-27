@@ -1,7 +1,7 @@
 # Super-Resolution Network for Multiple Degradations (SRMD)
 PyTorch/NSML Implementation of [Learning a Single Convolutional Super-Resolution Network for Multiple Degradations](http://openaccess.thecvf.com/content_cvpr_2018/papers/Zhang_Learning_a_Single_CVPR_2018_paper.pdf) (CVPR 2018)
 
-All the files in the directories `kernels` are from [1]. 
+All the files in the directory `kernels` are from [1]. 
 
 
 ## Requirements
@@ -38,7 +38,7 @@ The implementation is slightly different with one in original paper.
 - At the last layer, any activation function (e.g., `sigmoid`, `tanh`) is not used.
     - Not stable results (bouncing pixels even after large iterations)
 
-## Ours
+### Ours
 - We upsample the feature map and then use convolutional layer with channel size of `3`.
 - We put a sigmoid function right after the last convolutional layer.
 
