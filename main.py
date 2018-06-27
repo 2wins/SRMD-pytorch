@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_size', type=int, default=40)
     parser.add_argument('--num_blocks', type=int, default=11)
     parser.add_argument('--num_channels', type=int, default=18)
-    parser.add_argument('--conv_dim', type=int, default=4)
+    parser.add_argument('--conv_dim', type=int, default=128)
     parser.add_argument('--scale_factor', type=int, default=2)
 
     # Training settings

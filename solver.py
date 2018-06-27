@@ -149,14 +149,14 @@ class Solver(object):
                     return x.data.cpu().numpy()
 
                 if USE_NSML:
-                    tmp = nn.Upsample(scale_factor=2)(x.data[:,0:3,:])
+                    tmp = nn.Upsample(scale_factor=self.scale_factor)(x.data[:,0:3,:])
                     pairs = torch.cat((tmp.data[0:2,:], reconst.data[0:2,:], y.data[0:2,:]), dim=3)
                     grid = make_grid(pairs, 2)
                     tmp = 255 * grid.cpu().numpy()
                     # tmp = (255 * tmp).astype(np.uint8)
                     self.logger.images_summary('recons', tmp, step + 1)
                 else:
-                    tmp = nn.Upsample(scale_factor=2)(x.data[:,0:3,:])
+                    tmp = nn.Upsample(scale_factor=self.scale_factor)(x.data[:,0:3,:])
                     pairs = torch.cat((tmp.data[0:2,:], reconst.data[0:2,:], y.data[0:2,:]), dim=3)
                     grid = make_grid(pairs, 2)
                     from PIL import Image

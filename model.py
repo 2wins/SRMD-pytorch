@@ -21,7 +21,7 @@ class SRMD(nn.Module):
 
         # Modified
         self.conv_last = nn.Sequential(
-                            nn.Upsample(scale_factor=2),
+                            nn.Upsample(scale_factor=self.sf),
                             nn.Conv2d(self.conv_dim, 3, 3, padding=1),
                             nn.Sigmoid()
                          )
