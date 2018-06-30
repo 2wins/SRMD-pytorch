@@ -3,21 +3,17 @@ import torch
 from data_loader import get_loader
 import os
 from solver import Solver
-try:
-    import nsml
-    USE_NSML = True
-except ImportError:
-    USE_NSML = False
 
-
-if USE_NSML:
-    DATA_PATH = nsml.DATASET_PATH
-else:
-    DATA_PATH = './Database'
+DATA_PATH = './Database'
 
 
 def str2bool(v):
-    return v.lower() in ('true')
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 def main(config, scope):
@@ -50,12 +46,6 @@ def main(config, scope):
     def decode(input):
         return input
 
-    if USE_NSML:
-        nsml.bind(save, load)
-
-        if config.pause:
-            nsml.paused(scope=scope)
-    
     if config.mode == 'train':
         solver.train()
     elif config.mode == 'test':

@@ -5,12 +5,6 @@ from torchvision.utils import save_image, make_grid
 from model import SRMD
 import numpy as np
 
-try:
-    import nsml
-    USE_NSML = True
-except ImportError:
-    USE_NSML = False
-
 torch.set_default_tensor_type(torch.DoubleTensor)
 
 
@@ -104,15 +98,6 @@ class Solver(object):
                 data_iter = iter(self.data_loader)
 
             x, y = next(data_iter)
-
-            # from PIL import Image
-            # tmp = np.transpose(np.squeeze(x.data.numpy()), (1,2,0))
-            # tmp = (255 * tmp).astype(np.uint8)
-            # Image.fromarray(tmp).save('test_lr.png')
-            # tmp = np.transpose(np.squeeze(y.data.numpy()), (1,2,0))
-            # tmp = (255 * tmp).astype(np.uint8)
-            # Image.fromarray(tmp).save('test_hr.png')
-
             x, y = x.to(self.device), y.to(self.device)
             y = y.to(torch.float64)
 
@@ -130,16 +115,6 @@ class Solver(object):
             if (step+1) % self.log_step == 0:
                 print("[{}/{}] loss: {:.4f}".format(step+1, self.total_step, loss.item()))
 
-                if USE_NSML:
-                    if self.use_tensorboard:
-                        info = {
-                            'loss/loss': loss.item(),
-                            # 'misc/lr': lr
-                        }
-
-                        for key, value in info.items():
-                            self.logger.scalar_summary(key, value, step + 1, scope=locals())
-
             # Sample images
             if (step+1) % self.sample_step == 0:
                 self.model.eval()
@@ -148,42 +123,22 @@ class Solver(object):
                 def to_np(x):
                     return x.data.cpu().numpy()
 
-                if USE_NSML:
-                    tmp = nn.Upsample(scale_factor=self.scale_factor)(x.data[:,0:3,:])
-                    pairs = torch.cat((tmp.data[0:2,:], reconst.data[0:2,:], y.data[0:2,:]), dim=3)
-                    grid = make_grid(pairs, 2)
-                    tmp = 255 * grid.cpu().numpy()
-                    # tmp = (255 * tmp).astype(np.uint8)
-                    self.logger.images_summary('recons', tmp, step + 1)
-                else:
-                    tmp = nn.Upsample(scale_factor=self.scale_factor)(x.data[:,0:3,:])
-                    pairs = torch.cat((tmp.data[0:2,:], reconst.data[0:2,:], y.data[0:2,:]), dim=3)
-                    grid = make_grid(pairs, 2)
-                    from PIL import Image
-                    tmp = np.squeeze(grid.numpy().transpose((1, 2, 0)))
-                    tmp = (255 * tmp).astype(np.uint8)
-                    Image.fromarray(tmp).save('./samples/test_%d.jpg' % (step + 1))
+                tmp = nn.Upsample(scale_factor=self.scale_factor)(x.data[:,0:3,:])
+                pairs = torch.cat((tmp.data[0:2,:], reconst.data[0:2,:], y.data[0:2,:]), dim=3)
+                grid = make_grid(pairs, 2)
+                from PIL import Image
+                tmp = np.squeeze(grid.numpy().transpose((1, 2, 0)))
+                tmp = (255 * tmp).astype(np.uint8)
+                Image.fromarray(tmp).save('./samples/test_%d.jpg' % (step + 1))
 
             # Save check points
             if (step+1) % self.model_save_step == 0:
-                if USE_NSML:
-                    nsml.save(step)
-                else:
-                    pass
+                self.save(os.path.join(self.model_save_path, '{}.pth'.format(self.trained_model)))
 
     def save(self, filename):
         model = self.model.state_dict()
         torch.save({'SR': model}, filename)
 
+    # TODO: to be implemented
     def test(self):
-        # Load trained params
-        self.model.eval()
-        S = torch.load(os.path.join(
-            self.model_save_path, '{}.pth'.format(self.trained_model)))
-        self.model.load_state_dict(S['SR'])
-
-        # Sampling
-        reconst = self.model(x)
-        save_image(reconst.data, 'reconst.png')
-
-        return self.denorm(fake.data)
+        pass

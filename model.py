@@ -13,16 +13,9 @@ class SRMD(nn.Module):
 
         self.nonlinear_mapping = self.make_layers(num_blocks)
 
-        # # Original Implementation
-        # self.conv_last = nn.Sequential(
-        #                     nn.Conv2d(self.conv_dim, 3*self.sf**2, kernel_size=3, padding=1),
-        #                     nn.PixelShuffle(self.sf),
-        #                  )
-
-        # Modified
         self.conv_last = nn.Sequential(
-                            nn.Upsample(scale_factor=self.sf),
-                            nn.Conv2d(self.conv_dim, 3, 3, padding=1),
+                            nn.Conv2d(self.conv_dim, 3*self.sf**2, kernel_size=3, padding=1),
+                            nn.PixelShuffle(self.sf),
                             nn.Sigmoid()
                          )
 
