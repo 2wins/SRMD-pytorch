@@ -59,7 +59,7 @@ class Solver(object):
         print('loaded trained models (step: {})..!'.format(self.trained_model))
 
     def load(self, filename):
-        S = torch.load(filename)
+        S = torch.load(filename, weights_only=True)
         self.model.load_state_dict(S['SR'])
 
     def build_tensorboard(self):
